@@ -2,11 +2,15 @@
   "name": "Scholar Assistant",
   "version": "1.0",
   "description": "Automatically utilise Auckland Universities proxy for research databases",
-  "permissions": ["activeTab", "declarativeContent", "storage"],
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "storage",
+    "http://*/", "https://*/"],
   "options_page": "options.html",
   "background": {
     "scripts": ["background.js"],
-    "persistent": false
+    "persistent": true
   },
   "page_action": {
     "default_popup": "popup.html",
