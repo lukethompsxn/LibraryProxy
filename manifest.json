@@ -6,14 +6,15 @@
     "webRequest",
     "webRequestBlocking",
     "storage",
+    "tabs",
     "http://*/", "https://*/"],
-  "options_page": "options.html",
   "background": {
     "scripts": ["background.js"],
     "persistent": true
   },
-  "page_action": {
+  "browser_action": {
     "default_popup": "popup.html",
+    "default title": "Scholar Assistant",
     "default_icon": {
       "16": "images/get_started16.png",
       "32": "images/get_started32.png",

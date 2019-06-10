@@ -1,21 +1,63 @@
-// Copyright 2018 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+const pre = "*://";
+const post = "/*";
+const add = "Add to LibProxy";
+const remove = "Remove from LibProxy";
 
-'use strict';
-
-let changeColor = document.getElementById('changeColor');
-
-chrome.storage.sync.get('color', function(data) {
-  changeColor.style.backgroundColor = data.color;
-  changeColor.setAttribute('value', data.color);
+chrome.storage.sync.get("databases", function (result) {
+    chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
+        let domain = pre + tabs[0].url.match(/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/)[1] + post;
+        let dbList = result.databases;
+        if (dbList && dbList.includes(domain)) {
+            setForRemove(dbList, domain);
+        } else {
+            setForAdd(dbList, domain);
+        }
+    });
 });
 
-changeColor.onclick = function(element) {
-  let color = element.target.value;
-  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-    chrome.tabs.executeScript(
-        tabs[0].id,
-        {code: 'document.body.style.backgroundColor = "' + color + '";'});
-  });
+function setForAdd(dbList, domain) {
+    let button = document.getElementById("add-remove");
+    button.innerText = add;
+    button.onclick = function () {
+        if (dbList === undefined) {
+            dbList = [];
+            console.log("made new set");
+            console.log("domain" + domain);
+        }
+        dbList.push(domain);
+        console.log("here: " + dbList[domain]);
+        chrome.storage.sync.set({"databases": dbList}, function () {
+            console.log("Successfully added: " + domain);
+            document.getElementById("add-remove").innerText = remove;
+            setForRemove(dbList, domain)
+        });
+
+        chrome.storage.sync.set({"dogs": dbList}, function () {
+            console.log("Successfully added: " + domain);
+            document.getElementById("add-remove").innerText = remove;
+            setForRemove(dbList, domain)
+        });
+    }
+}
+
+function setForRemove(dbList, domain) {
+    let button = document.getElementById("add-remove");
+    button.innerText = remove;
+    button.onclick = function () {
+        console.log("domain" + domain);
+        dbList[domain] = undefined;
+        console.log("list" + dbList);
+        chrome.storage.sync.set({"databases": dbList}, function () {
+            console.log("Successfully removed: " + domain);
+            document.getElementById("add-remove").innerText = add;
+            setForAdd(dbList, domain);
+        });
+    }
+
+}
+
+document.getElementById("poll").onclick = function() {
+    chrome.storage.sync.get("databases", function (result) {
+        console.log(result.databases);
+    });
 };
