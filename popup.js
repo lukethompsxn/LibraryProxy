@@ -21,20 +21,13 @@ function setForAdd(dbList, domain) {
     button.onclick = function () {
         if (dbList === undefined) {
             dbList = [];
-            console.log("made new set");
-            console.log("domain" + domain);
         }
+
         dbList.push(domain);
-        console.log("here: " + dbList[domain]);
         chrome.storage.sync.set({"databases": dbList}, function () {
             console.log("Successfully added: " + domain);
             document.getElementById("add-remove").innerText = remove;
-            setForRemove(dbList, domain)
-        });
-
-        chrome.storage.sync.set({"dogs": dbList}, function () {
-            console.log("Successfully added: " + domain);
-            document.getElementById("add-remove").innerText = remove;
+            triggerBackground();
             setForRemove(dbList, domain)
         });
     }
@@ -44,12 +37,11 @@ function setForRemove(dbList, domain) {
     let button = document.getElementById("add-remove");
     button.innerText = remove;
     button.onclick = function () {
-        console.log("domain" + domain);
         dbList[domain] = undefined;
-        console.log("list" + dbList);
         chrome.storage.sync.set({"databases": dbList}, function () {
             console.log("Successfully removed: " + domain);
             document.getElementById("add-remove").innerText = add;
+            triggerBackground();
             setForAdd(dbList, domain);
         });
     }
@@ -61,3 +53,9 @@ document.getElementById("poll").onclick = function() {
         console.log(result.databases);
     });
 };
+
+function triggerBackground() {
+    chrome.runtime.getBackgroundPage(function(bg) {
+        bg.updateDatabases();
+    });
+}

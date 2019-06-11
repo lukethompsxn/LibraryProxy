@@ -4,21 +4,23 @@ let base = "https://";
 let proxy = ".ezproxy.auckland.ac.nz";
 let databases = ["*://ieeexplore.ieee.org/*"];
 
-chrome.storage.sync.get("databases", function(result) {
-   databases.push(result.databases);
-});
+updateDatabases();
 
-chrome.storage.onChanged.addListener(function() {
-    console.log("hehe");
-});
+function updateDatabases() {
+    chrome.storage.sync.get("databases", function(result) {
+        if (result.databases !== undefined) {
+            databases = databases.concat(result.databases);
+        }
 
-chrome.webRequest.onBeforeRequest.addListener(
-    function(details) {
-      return {redirectUrl:  base + details.url.match(/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/)[1].replace(/\./g, "-") + proxy + details.url.match(/^https?:\/\/[^\/]+([\S\s]*)/)[1]};
-    },
-    {
-      urls: databases,
-      types: ["main_frame", "sub_frame", "stylesheet", "script", "image", "object", "xmlhttprequest", "other"]
-    },
-    ["blocking"]
-);
+        chrome.webRequest.onBeforeRequest.addListener(
+            function(details) {
+                return {redirectUrl:  base + details.url.match(/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/)[1].replace(/\./g, "-") + proxy + details.url.match(/^https?:\/\/[^\/]+([\S\s]*)/)[1]};
+            },
+            {
+                urls: databases,
+                types: ["main_frame", "sub_frame", "stylesheet", "script", "image", "object", "xmlhttprequest", "other"]
+            },
+            ["blocking"]
+        );
+    });
+}
