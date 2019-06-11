@@ -6,8 +6,10 @@ const remove = "Remove from LibProxy";
 chrome.storage.sync.get("databases", function (result) {
     chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
         let domain = pre + tabs[0].url.match(/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/)[1] + post;
+        let unproxyDomain = convertProxyToDomain(domain);
+        console.log(unproxyDomain);
         let dbList = result.databases;
-        if (dbList && dbList.includes(domain)) {
+        if (dbList && (dbList.includes(domain) || dbList.includes(unproxyDomain))) {
             setForRemove(dbList, domain);
         } else {
             setForAdd(dbList, domain);
@@ -63,4 +65,8 @@ function triggerBackground() {
             chrome.tabs.executeScript(tab.id, {code: code});
         });
     });
+}
+
+function convertProxyToDomain(proxyDomain) {
+    return proxyDomain.replace(".ezproxy.auckland.ac.nz", "").replace(/-/g, ".");
 }
