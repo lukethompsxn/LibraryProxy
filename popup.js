@@ -10,7 +10,7 @@ chrome.storage.sync.get("databases", function (result) {
         console.log(unproxyDomain);
         let dbList = result.databases;
         if (dbList && (dbList.includes(domain) || dbList.includes(unproxyDomain))) {
-            setForRemove(dbList, domain);
+            setForRemove(dbList, unproxyDomain);
         } else {
             setForAdd(dbList, domain);
         }
@@ -29,7 +29,7 @@ function setForAdd(dbList, domain) {
         chrome.storage.sync.set({"databases": dbList}, function () {
             console.log("Successfully added: " + domain);
             document.getElementById("add-remove").innerText = remove;
-            triggerBackground();
+            addDomain(domain);
             setForRemove(dbList, domain)
         });
     }
@@ -39,31 +39,37 @@ function setForRemove(dbList, domain) {
     let button = document.getElementById("add-remove");
     button.innerText = remove;
     button.onclick = function () {
-        dbList[domain] = undefined;
+        let index = dbList.indexOf(domain);
+        if (index === 0) {
+            dbList.shift();
+        } else {
+            dbList.splice(index, index);
+        }
+
         chrome.storage.sync.set({"databases": dbList}, function () {
             console.log("Successfully removed: " + domain);
             document.getElementById("add-remove").innerText = add;
-            triggerBackground();
-            setForAdd(dbList, domain);
+            reloadExtension();
         });
     }
 
 }
 
-document.getElementById("poll").onclick = function() {
-    chrome.storage.sync.get("databases", function (result) {
-        console.log(result.databases);
-    });
-};
-
-function triggerBackground() {
+function addDomain(domain) {
+    let domains = [domain];
     chrome.runtime.getBackgroundPage(function(bg) {
-        bg.updateDatabases();
+        bg.addToFilter(domains);
 
         chrome.tabs.getSelected(null, function(tab) {
             var code = 'window.location.reload();';
             chrome.tabs.executeScript(tab.id, {code: code});
         });
+    });
+}
+
+function reloadExtension() {
+    chrome.runtime.getBackgroundPage(function(bg) {
+        bg.reload();
     });
 }
 
