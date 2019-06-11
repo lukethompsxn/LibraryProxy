@@ -9,7 +9,7 @@ A chrome extension designed to allow you to automatically utilise the university
 - If you wish to remove a domain from the proxy, simply visit the domain and then click on Library proxy, then click "Remove from Proxy"
 
 ### Note
-This is not create by the University of Auckland, nor is it affiliated in any way with the University of Auckland.
+This is not created by the University of Auckland, nor is it affiliated in any way with the University of Auckland.
 
 ### License
 MIT License, please see the [LICENSE](https://github.com/lukethompsxn/LibraryProxy/blob/master/LICENSE)
