@@ -1,7 +1,7 @@
 const pre = "*://";
 const post = "/*";
-const add = "Add to LibProxy";
-const remove = "Remove from LibProxy";
+const add = "Add to Proxy";
+const remove = "Remove from Proxy";
 
 chrome.storage.sync.get("databases", function (result) {
     chrome.tabs.query({'active': true, 'lastFocusedWindow': true}, function (tabs) {
